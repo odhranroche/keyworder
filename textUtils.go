@@ -4,19 +4,8 @@ import (
     "strings"
     "unicode"
     "unicode/utf8"
+    "strconv"
 )
-
-func removeUpperCase(text string) string {
-    return strings.ToLower(text)
-}
-
-func removeChars(text string, chars []rune) string {
-    for _, r := range chars {
-        text = strings.ReplaceAll(text, string(r), " ")
-    }
-
-    return text
-}
 
 func isShort(word string, minSize int) bool {
     if utf8.RuneCountInString(word) >= minSize {
@@ -36,19 +25,6 @@ func isIn(word string, words []string) bool {
     return false
 }
 
-func removeShortWords(text string, minSize int) string {
-    goodLengthWords := []string{}
-
-    words := strings.Split(text, " ")
-    for _, word := range words {
-        if utf8.RuneCountInString(word) >= minSize {
-            goodLengthWords = append(goodLengthWords, word)
-        }
-    }
-
-    return strings.Join(goodLengthWords, " ")
-}
-
 func getSpecialChars(text string) []rune {
     specialChars := make(map[rune]bool)
     specialCharsSlice := []rune{}
@@ -64,12 +40,12 @@ func getSpecialChars(text string) []rune {
     return specialCharsSlice
 }
 
-func filterWordCounter(wordCount map[string]int, minWordSize int, wordsToRemove []string) {
-    for word, _ := range wordCount {
-        if isShort(word, minWordSize) || isIn(word, wordsToRemove) {
-            delete(wordCount, word)
-        }
+func removeChars(text string, chars []rune) string {
+    for _, r := range chars {
+        text = strings.ReplaceAll(text, string(r), " ")
     }
+
+    return text
 }
 
 func getWordCount(text string) map[string]int {
@@ -87,10 +63,21 @@ func getWordCount(text string) map[string]int {
     return wordCounter
 }
 
-func removeWords(words map[string]int, wordsToRemove []string) {
-    for _, word := range wordsToRemove {
-        delete(words, word)
+func filterWordCounter(wordCount map[string]int, minWordSize int, wordsToRemove []string) {
+    for word, _ := range wordCount {
+        if isShort(word, minWordSize) || isIn(word, wordsToRemove) {
+            delete(wordCount, word)
+        }
     }
+}
+
+func mapToString(m map[string]int) string {
+    var result strings.Builder
+    for k, v := range m {
+        result.WriteString(k + "," + strconv.Itoa(v) + "\n")
+    }
+
+    return result.String()
 }
 
 // remove punctuation first
@@ -108,8 +95,6 @@ func getCapitalizedWords(text string) []string {
 }
 
 func suggestProperNouns(capitalizedWords []string, minOccurences int) []string {
-    // const minOccurences int = 5;
-
     suggestions := []string{}
 
     text := strings.Join(capitalizedWords, " ")

@@ -13,6 +13,7 @@
              with different meanings
            - Suggested proper nouns sometimes picks words that
              are at the start of a sentence
+           - Words with apostrophies are split haven't -> haven t
  */
 
 package main
@@ -39,7 +40,7 @@ func main() {
 
     // const inputFile string = "Госпожа и господин Дърсли, живеещи на улица „Привит Драйв“"
     // const inputFile string = "Mister and misses Dursley, who lived on 'Privet Drive'"
-    // const inputFile string = "HP_Short.txt"
+    // const inputFile string = "HP_Short_Eng.txt"
     const inputFile string = "HP1_Eng.txt"
     // const inputFile string = "HP_Full.txt"
     const outputFile string = inputFile + "_output"

@@ -5,6 +5,7 @@ import (
     "unicode"
     "unicode/utf8"
     "strconv"
+    _"fmt"
 )
 
 func isShort(word string, minSize int) bool {
@@ -81,13 +82,18 @@ func filterWordCounterByWords(wordCount map[string]int, wordsToRemove []string) 
 }
 
 func filterWordCounterBySimilarity(wordCount map[string]int, similarity float64) {
-    keys := mapKeysToSlice(wordCount)
+    mapCopy := make(map[string]int)
+    for k, v := range wordCount {
+        mapCopy[k] = v
+    }
 
-    for _, word1 := range keys {
+    for word1, _ := range mapCopy {
         for word2, _ := range wordCount {
             jwDistance := Calculate(word1, word2)
             if word1 != word2 && jwDistance > similarity {
+                // fmt.Println(word1, word2)
                 delete(wordCount, word2)
+                delete(mapCopy, word2)
             }
         }
     }    

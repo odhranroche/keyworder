@@ -53,6 +53,7 @@ func getWordCount(text string) map[string]int {
 
     wordCounter := make(map[string]int)
     for _, word := range words {
+        word = strings.ToLower(word)
         if wordCounter[word] > 0 {
             wordCounter[word]++
         } else {
@@ -63,12 +64,33 @@ func getWordCount(text string) map[string]int {
     return wordCounter
 }
 
-func filterWordCounter(wordCount map[string]int, minWordSize int, wordsToRemove []string) {
+func filterWordCounterBySize(wordCount map[string]int, minWordSize int) {
     for word, _ := range wordCount {
-        if isShort(word, minWordSize) || isIn(word, wordsToRemove) {
+        if isShort(word, minWordSize) {
             delete(wordCount, word)
         }
     }
+}
+
+func filterWordCounterByWords(wordCount map[string]int, wordsToRemove []string) {
+    for word, _ := range wordCount {
+        if isIn(word, wordsToRemove) {
+            delete(wordCount, word)
+        }
+    }
+}
+
+func filterWordCounterBySimilarity(wordCount map[string]int, similarity float64) {
+    keys := mapKeysToSlice(wordCount)
+
+    for _, word1 := range keys {
+        for word2, _ := range wordCount {
+            jwDistance := Calculate(word1, word2)
+            if word1 != word2 && jwDistance > similarity {
+                delete(wordCount, word2)
+            }
+        }
+    }    
 }
 
 func mapToString(m map[string]int) string {
@@ -78,6 +100,24 @@ func mapToString(m map[string]int) string {
     }
 
     return result.String()
+}
+
+func mapKeysToString(m map[string]int) string {
+    var result strings.Builder
+    for k, _ := range m {
+        result.WriteString(k + "\n")
+    }
+
+    return result.String()
+}
+
+func mapKeysToSlice(m map[string]int) []string {
+    result := []string{}
+    for k, _ := range m {
+        result = append(result, k)
+    }
+
+    return result
 }
 
 // remove punctuation first

@@ -6,14 +6,11 @@ import (
     "unicode/utf8"
     "strconv"
     _"fmt"
+    "regexp"
 )
 
 func isShort(word string, minSize int) bool {
-    if utf8.RuneCountInString(word) >= minSize {
-        return false
-    } else {
-        return true
-    }
+    return utf8.RuneCountInString(word) < minSize
 }
 
 func isIn(word string, words []string) bool {
@@ -26,27 +23,10 @@ func isIn(word string, words []string) bool {
     return false
 }
 
-func getSpecialChars(text string) []rune {
-    specialChars := make(map[rune]bool)
-    specialCharsSlice := []rune{}
-
-    for _, r := range text {
-        // if a special char is not already stored
-        if !unicode.IsLetter(r) && !specialChars[r] {
-            specialChars[r] = true
-            specialCharsSlice = append(specialCharsSlice, r)
-        }
-    }
-
-    return specialCharsSlice
-}
-
-func removeChars(text string, chars []rune) string {
-    for _, r := range chars {
-        text = strings.ReplaceAll(text, string(r), " ")
-    }
-
-    return text
+func removePunctuation(text string) string {
+    // match a sequence of unicode letters which may contain an apostrophe
+    re := regexp.MustCompile("\\p{L}+('\\p{L}+|\\p{L}*)")
+    return strings.Join(re.FindAllString(text, -1), " ")
 }
 
 func getWordCount(text string) map[string]int {
@@ -91,7 +71,7 @@ func filterWordCounterBySimilarity(wordCount map[string]int, similarity float64)
         for word2, _ := range wordCount {
             jwDistance := Calculate(word1, word2)
             if word1 != word2 && jwDistance > similarity {
-                // fmt.Println(word1, word2)
+                // fmt.Println(word1, "\t", word2)
                 delete(wordCount, word2)
                 delete(mapCopy, word2)
             }
@@ -111,22 +91,12 @@ func mapToString(m map[string]int) string {
 func mapKeysToString(m map[string]int) string {
     var result strings.Builder
     for k, _ := range m {
-        result.WriteString(k + "\n")
+        result.WriteString(k + " ")
     }
 
     return result.String()
 }
 
-func mapKeysToSlice(m map[string]int) []string {
-    result := []string{}
-    for k, _ := range m {
-        result = append(result, k)
-    }
-
-    return result
-}
-
-// remove punctuation first
 func getCapitalizedWords(text string) []string {
     capitalizedWords := []string{}
 
@@ -151,6 +121,5 @@ func suggestProperNouns(capitalizedWords []string, minOccurences int) []string {
             suggestions = append(suggestions, word)
         }
     }
-
     return suggestions
 }
